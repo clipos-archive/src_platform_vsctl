@@ -1,0 +1,73 @@
+=pod
+
+=head1 NAME
+
+vsattr - Set vserver inode attributes
+
+=head1 SYNOPSIS
+
+=over 12
+
+=item B<vsattr> [B<-pvh>] B<attributes> B<files>
+
+=back
+
+=head1 DESCRIPTION
+
+B<vsattr> allows you to set vserver-specific attributes on inodes, just like
+util-vserver's setattr.
+
+=head1 OPTIONS
+
+B<vsattr> supports the following 'generic' options:
+
+=over 12
+
+=item B<-p> 
+
+Pretend. Do not perform any vserver syscall, only show what would be done.
+
+=item B<-v>
+
+Display version number and exit.
+
+=item B<-h>
+
+Display help and exit.
+
+=back
+
+On top of this, attributes to be set or unset are passed on the command line as
+follows :
+
+=over 12
+
+=item B<--admin>/B<--~admin>
+
+Set/unset admin-visible attribute (procfs only).
+
+=item B<--watch>/B<--~watch>
+
+Set/unset watch-visible attribute (procfs only).
+
+=item B<--hide>/B<--~hide>
+
+Set/unset hidden attribute (procfs only).
+
+=item B<--iunlink>/B<--~iunlink>
+
+Set/unset iunlink attribute.
+
+=item B<--barrier>/B<--~barrier>
+
+Set/unset chroot barrier attribute.
+
+=head1 AUTHOR 
+
+Vincent Strubel <L<clipos@ssi.gouv.fr>>
+
+=head1 SEE ALSO
+
+L<vsctl(8)|vsctl>, L<vserver(8)|vserver>
+ 
+=cut

@@ -1,0 +1,29 @@
+# Defaults for vsctl initscript
+# sourced by /etc/init.d/vsctl
+# installed at /etc/default/vsctl by the maintainer scripts
+
+#
+# This is a POSIX shell fragment
+#
+
+VPROCUNHIDE_ALL="/proc/version
+/proc/stat
+/proc/meminfo
+/proc/net
+/proc/net/dev
+/proc/uptime
+/proc/filesystems"
+
+VPROCUNHIDE_NONE="/proc/acpi/button
+/proc/acpi/dsdt
+/proc/acpi/embedded_controller
+/proc/acpi/event
+/proc/acpi/fadt
+/proc/acpi/fan
+/proc/acpi/power_resource
+/proc/acpi/processor
+/proc/acpi/thermal_zone"
+
+
+# Additional options that are passed to the Daemon.
+DAEMON_OPTS=""

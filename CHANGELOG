@@ -1,0 +1,446 @@
+# CLIP ChangeLog for <app-clip/vsctl>
+
+*vsctl-1.6.3 (16 Jan 2018)
+
+  16 Jan 2018; Timothée Ravier <clipos@ssi.gouv.fr>
+  +vsctl-1.6.3.ebuild, -vsctl-1.6.2.ebuild:
+  Fix build with linux-headers 4.4.
+
+*vsctl-1.6.1-r1 (12 Apr 2017)
+
+  12 Apr 2017; Mickaël Salaün <clipos@ssi.gouv.fr>
+  +vsctl-1.6.2.ebuild, -vsctl-1.6.1.ebuild:
+  Read fstab.external.d/* in deterministic order.
+
+*vsctl-1.6.1 (17 Oct 2016)
+
+  17 Oct 2016; Alain Ozanne <clipos@ssi.gouv.fr>
+  +vsctl-1.6.1.ebuild, -vsctl-1.6.0-r1.ebuild:
+  Add the ability to manage cgroups per jail.
+
+*vsctl-1.6.0-r1 (22 Sep 2016)
+
+  22 Sep 2016; Philippe Trebuchet <clipos@ssi.gouv.fr>
+  +vsctl-1.6.0-r1.ebuild, -vsctl-1.6.0.ebuild:
+  fixup privileges netlink for vsctl to work even if clsm is not loaded as a
+  module
+
+*vsctl-1.6.0 (05 Sep 2016)
+
+  05 Sep 2016; Mickaël Salaün <clipos@ssi.gouv.fr>
+  +vsctl-1.6.0.ebuild, -vsctl-1.5.1-r2.ebuild:
+  Extend support to set UID/GID for the start/enter/stop commands and pass
+  environment for the start command as well.
+
+*vsctl-1.5.1-r2 (12 Nov 2015)
+
+  12 Nov 2015; Thomas Letan <clipos@ssi.gouv.fr>
+  +vsctl-1.5.1-r2.ebuild, -vsctl-1.5.1-r1.ebuild:
+  Add linux-headers as dependency, as it was missing before.
+
+*vsctl-1.5.1-r1 (15 May 2014)
+
+  15 May 2014; Vincent Strubel <clipos@ssi.gouv.fr>
+  +vsctl-1.5.1-r1.ebuild, -vsctl-1.5.1.ebuild,
+  files/all:
+  /proc/acpi/* files no longer need to be exposed in all jails.
+
+*vsctl-1.5.1 (26 Feb 2014)
+
+  26 Feb 2014; Vincent Strubel <clipos@ssi.gouv.fr>
+  +vsctl-1.5.1.ebuild, -vsctl-1.5.0.ebuild:
+  Support an arbitrary number of IP addresses in vsctl/vsaddr,
+  based on changes suggested by ASTRIUM.
+
+*vsctl-1.5.0 (07 Feb 2014)
+
+  07 Feb 2014; Vincent Strubel <clipos@ssi.gouv.fr>
+  +vsctl-1.5.0.ebuild, -vsctl-1.4.0.ebuild,
+  files/all, files/vprocunhide, files/watch:
+  Add a vswatch utility to run commands in the WATCH context.
+  Improve envp setup for various commands.
+  Unmask /proc/cpuinfo in all contexts and a few more proc
+  files in WATCH.
+
+*vsctl-1.4.0 (02 Jan 2014)
+
+  02 Jan 2014; Vincent Strubel <clipos@ssi.gouv.fr>
+  +vsctl-1.4.0.ebuild, -vsctl-1.3.9-r1.ebuild:
+  Support optional /etc/<jail>/fstab.{external,internal}.d 
+  directories, where miscellaneous packages can define 
+  extra mounts to be performed in a given jail.
+
+*vsctl-1.3.9-r1 (30 Dec 2013)
+
+  30 Dec 2013; Vincent Strubel <clipos@ssi.gouv.fr>
+  +vsctl-1.3.9-r1.ebuild, -vsctl-1.3.9.ebuild:
+  Force rebuild to add openrc dependency.
+
+*vsctl-1.3.9 (04 Nov 2013)
+
+  04 Nov 2013; Vincent Strubel <clipos@ssi.gouv.fr>
+  +vsctl-1.3.9.ebuild, -vsctl-1.3.8.ebuild:
+  Better error handling in vs_ns_setup script + add inheritable
+  CAP_SYS_ADMIN for vsctl, to enable running sysctl from vs_ns_setup.
+
+*vsctl-1.3.8 (30 Oct 2013)
+
+  30 Oct 2013; Vincent Strubel <clipos@ssi.gouv.fr>
+  +vsctl-1.3.8.ebuild, -vsctl-1.3.7.ebuild,
+  files/vprocunhide:
+  Fix build with gcc-4.3.7 + openrc description in vprocunhide
+  init script.
+
+*vsctl-1.3.7 (25 Sep 2013)
+
+  25 Sep 2013; ANSSI <clipos@ssi.gouv.fr>
+  +vsctl-1.3.7.ebuild, -vsctl-1.3.6.ebuild:
+  Fix compilation problem on arm.
+
+*vsctl-1.3.6 (24 Sep 2013)
+
+  24 Sep 2013; Vincent Strubel <clipos@ssi.gouv.fr>
+  +vsctl-1.3.6.ebuild, -vsctl-1.3.5-r1.ebuild:
+  Fix segfault on vsctl endsetup.
+
+*vsctl-1.3.5-r1 (18 Sep 2013)
+
+  18 Sep 2013; Vincent Strubel <clipos@ssi.gouv.fr>
+  +vsctl-1.3.5-r1.ebuild, -vsctl-1.3.5.ebuild:
+  Add missing verictl entry for vsaddr.
+
+*vsctl-1.3.5 (11 Jul 2013)
+
+  11 Jul 2013; Vincent Strubel <clipos@ssi.gouv.fr>
+  +vsctl-1.3.5.ebuild, -vsctl-1.3.4-r1.ebuild:
+  Use '%' rather than ':' as separator for environment variables
+  on command line (vsctl -e 'VAR1=val1%VAR2=val2').
+
+*vsctl-1.3.4-r1 (31 May 2013)
+
+  31 May 2013; Vincent Strubel <clipos@ssi.gouv.fr>
+  +vsctl-1.3.4-r1.ebuild, -vsctl-1.3.4.ebuild,
+  files/all, files/vprocunhide:
+  vprocunhide init script : more generic unhiding of battery
+  /proc entries + unhide more alsa proc files.
+
+*vsctl-1.3.4 (16 Apr 2013)
+
+  16 Apr 2013; Vincent Strubel <clipos@ssi.gouv.fr>
+  +vsctl-1.3.4.ebuild, -vsctl-1.3.3.ebuild:
+  Add support for multiple fs types in nsmount.
+
+*vsctl-1.3.3 (11 Jan 2013)
+
+  11 Jan 2013; Vincent Strubel <clipos@ssi.gouv.fr>
+  +vsctl-1.3.3.ebuild, -vsctl-1.3.2-r1.ebuild:
+  Setup 'ping' as the ping socket group in net namespaces.
+
+*vsctl-1.3.2-r1 (10 Dec 2012)
+
+  10 Dec 2012; Vincent Strubel <clipos@ssi.gouv.fr>
+  +vsctl-1.3.2-r1.ebuild, -vsctl-1.3.2.ebuild,
+  files/all:
+  Unmask /proc/asound/devices in jails.
+
+*vsctl-1.3.2 (24 Apr 2012)
+
+  24 Apr 2012; Vincent Strubel <clipos@ssi.gouv.fr>
+  +vsctl-1.3.2.ebuild, -vsctl-1.3.1.ebuild:
+  Fix child reaper behaviour.
+
+*vsctl-1.3.1 (03 Apr 2012)
+
+  03 Apr 2012; Vincent Strubel <clipos@ssi.gouv.fr>
+  +vsctl-1.3.1.ebuild, -vsctl-1.3.0.ebuild:
+  Fix build with gcc-4.6.
+  Change veriexec caps to support virtual interfaces - add 
+  a forced inheritable NET_ADMIN to vsctl, give forced privileges
+  to vspace - needed for the vs_net_setup callback.
+
+*vsctl-1.3.0 (14 Mar 2012)
+
+  14 Mar 2012; Vincent Strubel <clipos@ssi.gouv.fr>
+  +vsctl-1.3.0.ebuild, -vsctl-1.2.6.ebuild:
+  Support using virtual interfaces and net networks.
+  Support separate loopback and broadcast address definitions.
+
+*vsctl-1.2.6 (15 Feb 2012)
+
+  15 Feb 2012; Vincent Strubel <clipos@ssi.gouv.fr>
+  +vsctl-1.2.6.ebuild, -vsctl-1.2.5.ebuild:
+  Do not error-out when closing a file descriptor returns ENODEV.
+
+*vsctl-1.2.5 (27 Sep 2011)
+
+  27 Sep 2011; Mickaël Salaün <clipos@ssi.gouv.fr>
+  +vsctl-1.2.5.ebuild, -vsctl-1.2.4.ebuild:
+  Automatically set GID if unspecified.
+
+*vsctl-1.2.4 (30 Aug 2011)
+
+  30 Aug 2011; Vincent Strubel <clipos@ssi.gouv.fr>
+  +vsctl-1.2.4.ebuild, -vsctl-1.2.3.ebuild:
+  Fix build with gcc-4.5.
+
+*vsctl-1.2.3 (05 Jul 2011)
+
+  05 Jul 2011; Vincent Strubel <clipos@ssi.gouv.fr>
+  +vsctl-1.2.3.ebuild, -vsctl-1.2.2.ebuild:
+  Make use of USER namespace optional.
+
+*vsctl-1.2.2 (25 May 2011)
+
+  25 May 2011; Olivier Levillain <clipos@ssi.gouv.fr>
+  +vsctl-1.2.2.ebuild, -vsctl-1.2.1-r1.ebuild:
+  Add optional hostname parameter in /etc/jails.
+
+*vsctl-1.2.1-r1 (02 Feb 2011)
+
+  02 Feb 2011; Olivier Levillain <clipos@ssi.gouv.fr>
+  +vsctl-1.2.1-r1.ebuild, -vsctl-1.2.1.ebuild:
+
+*vsctl-1.2.1 (01 Feb 2011)
+
+  01 Feb 2011; Vincent Strubel <clipos@ssi.gouv.fr>
+  +vsctl-1.2.1.ebuild, -vsctl-1.2.0.ebuild:
+  Use terminal proxy after entering in contexts which use a
+  dedicated PID namespace.
+
+  25 Jan 2011; Vincent Strubel <clipos@ssi.gouv.fr>
+  vsctl-1.2.0.ebuild:
+  Fix build-depends vs. run-depends.
+
+*vsctl-1.2.0 (19 Jan 2011)
+
+  19 Jan 2011; Vincent Strubel <clipos@ssi.gouv.fr>
+  +vsctl-1.2.0.ebuild, -vsctl-1.1.6.ebuild:
+  Support the use of pid namespaces.
+
+*vsctl-1.1.6 (23 Nov 2010)
+
+  23 Nov 2010; Vincent Strubel <clipos@ssi.gouv.fr>
+  +vsctl-1.1.6.ebuild, -vsctl-1.1.5.ebuild:
+  Support noerror unmounting in nscleanup file : mount points
+  prefixed with * are unmounted if possible, but failure to do so
+  will not result in a configuration error.
+
+*vsctl-1.1.5 (08 Nov 2010)
+
+  08 Nov 2010; Vincent Strubel <clipos@ssi.gouv.fr>
+  +vsctl-1.1.5.ebuild, -vsctl-1.1.4.ebuild:
+  Better handling for SIGHUP in setup state.
+
+*vsctl-1.1.4 (18 Aug 2010)
+
+  18 Aug 2010; Mickaël Salaün <clipos@ssi.gouv.fr>
+  +vsctl-1.1.4.ebuild, -vsctl-1.1.3.ebuild:
+  Add automagic group list selection.
+
+*vsctl-1.1.3 (12 Aug 2010)
+
+  12 Aug 2010; Vincent Strubel <clipos@ssi.gouv.fr>
+  +vsctl-1.1.3.ebuild, -vsctl-1.1.2.ebuild:
+  Bump - fix compilation.
+
+*vsctl-1.1.2 (17 Feb 2010)
+
+  17 Feb 2010; Vincent Strubel <clipos@ssi.gouv.fr>
+  +vsctl-1.1.2.ebuild, -vsctl-1.1.1.ebuild:
+  Add "trace" option support in nsmount and vsctl.
+
+*vsctl-1.1.1 (12 Oct 2009)
+
+  12 Oct 2009; Vincent Strubel <clipos@ssi.gouv.fr>
+  +vsctl-1.1.1.ebuild, -vsctl-1.1.0.ebuild:
+  Automatically try to mount read-only if mounting read-write fails
+  with EROFS.
+
+*vsctl-1.1.0 (20 Apr 2009)
+
+  20 Apr 2009; Vincent Strubel <clipos@ssi.gouv.fr>
+  +vsctl-1.1.0.ebuild, -vsctl-1.0.16.ebuild:
+  Bump. Port to 2.6.28 kernel.
+
+  17 Apr 2009; Vincent Strubel <clipos@ssi.gouv.fr>
+  vsctl-1.0.16.ebuild:
+  Switch to verictl2.eclass.
+
+*vsctl-1.0.16 (18 Mar 2009)
+
+  18 Mar 2009; Vincent Strubel <clipos@ssi.gouv.fr>
+  +vsctl-1.0.16.ebuild, -vsctl-1.0.15.ebuild:
+  Fix GCC-4 warnings.
+
+*vsctl-1.0.15 (08 Oct 2008)
+
+  08 Oct 2008; Vincent Strubel <clipos@ssi.gouv.fr>
+  +vsctl-1.0.15.ebuild, -vsctl-1.0.14-r1.ebuild:
+  Add support for the 'no_sp' network context flag.
+
+*vsctl-1.0.14-r1 (23 Sep 2008)
+
+  23 Sep 2008; Vincent Strubel <clipos@ssi.gouv.fr>
+  +vsctl-1.0.14-r1.ebuild, -vsctl-1.0.14.ebuild,
+  files/all:
+  Expose /proc/stat and /proc/meminfo in jails, to support 
+  java.
+
+*vsctl-1.0.14 (01 Jul 2008)
+
+  01 Jul 2008; Vincent Strubel <clipos@ssi.gouv.fr>
+  +vsctl-1.0.14.ebuild, -vsctl-1.0.13-r3.ebuild:
+  Support multiple -a options in vsctl.
+
+*vsctl-1.0.13-r3 (10 Jun 2008)
+
+  10 Jun 2008; Vincent Strubel <clipos@ssi.gouv.fr>
+  +vsctl-1.0.13-r3.ebuild, -vsctl-1.0.13-r2.ebuild:
+  Use CCSD hashes for veriexec entries.
+
+*vsctl-1.0.13-r2 (22 Apr 2008)
+
+  22 Apr 2008; Vincent Strubel <clipos@ssi.gouv.fr>
+  +vsctl-1.0.13-r2.ebuild, -vsctl-1.0.13-r1.ebuild,
+  files/none, files/all:
+  Expose /proc/acpi/{battery,ac_adapter} stuff in jails, to
+  support a battery monitor.
+
+*vsctl-1.0.13-r1 (21 Apr 2008)
+
+  21 Apr 2008; Vincent Strubel <clipos@ssi.gouv.fr>
+  +vsctl-1.0.13-r1.ebuild, -vsctl-1.0.13.ebuild:
+  Make /proc/version visible in all jails, as this is needed for
+  openoffice startup.
+
+*vsctl-1.0.13 (10 Jan 2008)
+
+  10 Jan 2008; Vincent Strubel <clipos@ssi.gouv.fr>
+  +vsctl-1.0.13.ebuild, -vsctl-1.0.12.ebuild:
+  Add '-i' and '-o' options to specify which files to open as STDIN
+  and STDOUT before context migration. Bug #117.
+
+  07 Nov 2007; Vincent Strubel <clipos@ssi.gouv.fr>
+  Remove stale ebuilds before 1.0.12.
+
+*vsctl-1.0.12 (19 Oct 2007)
+
+  19 Oct 2007; Vincent Strubel <clipos@ssi.gouv.fr>
+  +vsctl-1.0.12.ebuild:
+  Add mtab support to nsmount.
+
+*vsctl-1.0.11-r1 (04 Oct 2007)
+
+  04 Oct 2007; Vincent Strubel <clipos@ssi.gouv.fr>
+  +vsctl-1.0.11-r1.ebuild:
+  Add IUSE clip-gtw to set attribute ~hide on /proc/mdstat.
+  Matches changes to util-vserver-0.212-r{3,4} in EADS's branch
+  (not merged).
+
+*vsctl-1.0.11 (02 Oct 2007)
+
+  02 Oct 2007; Vincent Strubel <clipos@ssi.gouv.fr>
+  +vsctl-1.0.11.ebuild:
+  Add support for the CLIP-only 'nosymfollow' option.
+
+*vsctl-1.0.10-r1 (19 Sep 2007)
+
+  19 Sep 2007; Vincent Strubel <clipos@ssi.gouv.fr>
+  +vsctl-1.0.10-r1.ebuild:
+  Do not try to set a barrier on /vservers when it doesn't exist...
+ 
+*vsctl-1.0.10 (18 Sep 2007)
+
+  18 Sep 2007; Vincent Strubel <clipos@ssi.gouv.fr>
+  +vsctl-1.0.10.ebuild:
+  Add support for the new MS_NOLOCK mount option in clip-kernel.
+  Also add a 'vspace' utility as a replacement for vnamespace -e. 
+
+*vsctl-1.0.9-r2 (28 Aug 2007)
+
+  28 Aug 2007; Vincent Strubel <clipos@ssi.gouv.fr>
+  +vsctl-1.0.9-r2.ebuild, +files/none, files/vprocunhide:
+  Add a 'none' category to vprocunhide, these files are marked 
+  '~admin'. For now, we only protect /proc/acpi that way.
+  
+*vsctl-1.0.9-r1 (08 Aug 2007)
+
+  08 Aug 2007; Vincent Strubel <clipos@ssi.gouv.fr>
+  +vsctl-1.0.9-r1.ebuild, +files/all, +files/watch, 
+  +files/vprocunhide:
+  Provide a custom vprocunhide script, using vsattr, to replace 
+  that from util-vserver.
+  Add postinst script to set the barrier attribute on, for the
+  moment, / and /vservers.
+
+*vsctl-1.0.9 (03 Aug 2007)
+
+  03 Aug 2007; Vincent Strubel <clipos@ssi.gouv.fr>
+  +vsctl-1.0.9.ebuild:
+  Bump to remove dependency on util-vserver, add missing
+  help/version commands to nsmount and vsctl, and add a smallish
+  setattr-lookalike, vsattr. Fixup possible DoS in vsctl setup
+  socket code (switch to non-blocking ops).
+
+*vsctl-1.0.8 (10 Jul 2007)
+
+  10 Jul 2007; Vincent Strubel <clipos@ssi.gouv.fr>
+  +vsctl-1.0.8.ebuild:
+  Bump, use new new_net_multi() call in clip-libvserver-4.0.1 to
+  enable multi-addresses contexts.
+
+*vsctl-1.0.7 (04 Jul 2007)
+
+  04 Jul 2007; Vincent Strubel <clipos@ssi.gouv.fr>
+  +vsctl-1.0.7.ebuild:
+  Added -t option to make use of the new terminal proxying code 
+  in libclipvserver.
+
+*vsctl-1.0.6 (25 Jun 2007)
+
+  25 Jun 2007; Vincent Strubel <clipos@ssi.gouv.fr>
+  +vsctl-1.0.6.ebuild:
+  Minor bump, set up path on entry and misc small fixes. Turn 
+  documentation into man pages.
+  
+*vsctl-1.0.5 (07 Jun 2007)
+
+  07 Jun 2007; Vincent Strubel <clipos@ssi.gouv.fr>
+  +vsctl-1.0.5.ebuild:
+  Bump, adds support for setup/endsetup/cookie commands to 
+  properly manage the setup phase of a jail. Add support for 
+  passing environment variables to the setup script with '-e'.
+  Switch to autoconf-managed compilation.
+  
+*vsctl-1.0.4 (01 Jun 2007)
+
+  01 Jun 2007; Vincent Strubel <clipos@ssi.gouv.fr>
+  +vsctl-1.0.4.ebuild:
+  Bump, add support for overriding the address on the 'start'
+  command line. 
+
+*vsctl-1.0.3 (30 Apr 2007)
+
+  25 Apr 2007; EADS D&S <clipos@ssi.gouv.fr>
+  +vsctl-1.0.3.ebuild:
+  Modify the Makefile to compile in static mode 
+  
+*vsctl-1.0.2 (25 Apr 2007)
+
+  25 Apr 2007; Vincent Strubel <clipos@ssi.gouv.fr>
+  +vsctl-1.0.2.ebuild:
+  Bump, adds a new nsmount executable to perform mounts in a 
+  given namespace, adds compat support for util-vserver < 0.30.212
+  and clip-libvserver < 4.0.
+  
+*vsctl-1.0.1 (23 Apr 2007)
+
+  23 Apr 2007; Vincent Strubel <clipos@ssi.gouv.fr>
+  +vsctl-1.0.1.ebuild:
+  Bump, some more features.
+
+*vsctl-1.0 (20 Apr 2007)
+
+  20 Apr 2007; Vincent Strubel <clipos@ssi.gouv.fr>
+  +vsctl-1.0.ebuild:
+  Initial import. Simple utility to replace util-vserver scripts.

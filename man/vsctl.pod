@@ -1,0 +1,299 @@
+=pod
+
+=head1 NAME
+
+vsctl - start, stop and enter vserver contexts.
+
+=head1 SYNOPSIS
+
+=over 12
+
+=item B<vsctl> [I<opts>] I<confdir> I<cmd> [ B<--> I<cmd> I<arg*> ]
+
+=back
+
+=head1 DESCRIPTION
+
+I<confdir> is the path to a configuration directory, set up as described in
+the B<FILES> section. This path is B<relative> to the 
+hardcoded config base directory, which defaults to F</etc/jails> and can be 
+changed at compile time through the CONFIG_BASE makefile variable.
+I<cmd> is a command keyword, among those listed in the B<COMMANDS>
+section.  [I<opts>] is a list of options, as described in the B<OPTIONS>
+section.
+
+=head1 COMMANDS
+
+=over 12
+
+=item B<start> 
+
+This starts up a vserver jail based on the <confdir> config.
+ 
+=item B<stop> 
+
+This stops a running jail, by basically slaughtering every 
+last process in it. More specifically, it sends the usual 
+SIGTERM/SIGKILL sequence, with 1 second in between.
+
+=item B<enter> 
+
+This enters a running jail, by running a shell in the same
+namespace, network context and security context.
+This executes /bin/sh by default, but this can be overriden
+by passing an arbitrary command as supplementary arguments, 
+as in :   B<vsctl> jail enter [opts] -- /bin/cat /proc/self/status
+
+=item B<setup> 
+
+This acts like 'start', creating a new net/security context, 
+and jailing itself inside, except that instead of the running
+a command as specified in the config tree, the B<vsctl> then 
+detaches itself, and goes to sleep waiting for and B<ensetup>
+process to wake it up. This has the effect of keeping the 
+newly created context alive without any daemon running inside
+it, so that one may for example run some specific setup inside
+this context before starting up its master daemon(s).
+Once setup is performed, the keepalive process can be terminated
+by connecting to a unix socket that the setup created before 
+jailing itself. The socket name is randomized within /var/run,
+and printed on the standard output before B<setup> jails itself.
+
+=item B<endsetup> 
+
+This terminates a keepalive process by connecting to its 
+control socket, then unlinks that socket. The FS path to the
+socket must be provided through the -s option (see bellow).
+A typical start-and-setup sequence goes as follows 
+ 	- vsctl <X> setup 
+ 	   (automatically goes to sleep in the background)
+ 	- vsctl <X> enter -- <setup command 1>
+ 	   ...
+ 	- vsctl <X> enter -- <setup command n>
+ 	- vsctl [-d] <X> enter -- <master daemon> 
+ 	   (will keep the context alive)
+ 	- vsctl <X> endsetup
+ 	   (terminates the setup B<waiter>)
+
+=item B<mount> 
+
+Performs all mounts required by the <confdir> config, without
+creating a new namespace. This command is for testing only, it is 
+only available when B<vsctl> is compiled with the VSCTL_TESTING option.
+
+=item B<umount> 
+
+Unmounts all mounts created through the 'mount' command.
+This command is for testing only, it is only available when
+B<vsctl> is compiled with the VSCTL_TESTING option.
+
+=back
+
+=head1 FILES
+
+The configuration directory I<confdir> must contain a set of configuration 
+files, as described below. All configuration files listed here should be
+present, although some of those can be left empty. Files that can never 
+be left empty are signalled with a '[mand]' below.
+
+=over 12
+
+=item F<context> [mand]
+
+The context number (both xid and nid) for this jail, as a string.
+
+=item F<root> [mand]
+
+Path to the VFS root of the jail.
+
+=item F<addr> [mand]
+
+IP addresses and associated netmasks for the jail. Addresses are specified
+as strings of the form : "<addr>/<mask>" (no quotes) with <addr> 
+and <mask> both in numbers-and-dots form. Example: 10.0.0.1/255.255.255.0
+This file should contain at least one and at most four such addresses, one
+per line.
+
+=item F<cmd> [mand]
+
+Full path to the executable that should be run inside the jail
+when starting it. Path is based on the chrooted tree, as in
+'/bin/sh', not '/jail_root/bin/sh'.
+
+=item F<bcaps>
+
+List of POSIX capabilities (identified by their B<capability.h>
+name), one per line, to include in the jail's effective caps 
+mask. Example :
+CAP_SETUID
+CAP_CHOWN
+CAP_DAC_OVERRIDE
+[not [mand], but think carefully before leaving this empty :)]
+
+=item F<ccaps>
+
+List of context capabilities for this jail, one per line, with 
+the same keywords as util-vserver. 
+        
+=item F<cflags>
+
+List of context flags for this jail, one per line, with 
+the same keywords as util-vserver. 
+        
+=item F<nflags>
+
+List of network context flags for this jail, one per line, with 
+the same keywords as util-vserver. 
+        
+=item F<fstab.internal>
+
+List of fstab-like lines, for mounts (usually bind) to be performed
+inside the jail's namespace, with the jail root prefix applied to
+both source and destination. Every line should be of the form :
+  <src>	<dst>	<type>	<options>
+with <type> and <options> as in your average /etc/fstab. Not all
+util-linux options are supported, but those that make sense are 
+(the CLIP-specific 'nolock' (MS_NOLOCK) and 'nosymfollow' 
+(MS_NOSYMFOLLOW) options are also supported).
+Note that such a config line will result in <jail root>/<src>
+being mounted on <jail root>/<dst> before the namespace is 
+chrooted, so avoid placing virtual sources such as B<procfs> or 
+B<userpts> in there.
+
+=item F<fstab.external>
+
+Just like fstab.internal, except for the fact that a 
+  <src> <dst> <type> <options>
+line in this file will result in <src> (no jail root prefix)
+being mounted on <jail root>/<dst>.
+Those mounts are performed after those specified in B<fstab.internal>
+
+=item F<nscleanup>
+
+List of mountpoints, one per line, to umount in the jail's namespace. 
+Mountpoints are specified by their full path, in the system's tree 
+rather than the jail's chrooted tree. The umount() calls are performed
+after the mount()s specified in both fstab.internal and fstab.external.
+
+=back
+
+=head1 OPTIONS
+
+=over 12
+
+=item B<-a> I<addr> [start only] 
+
+Address string to override the one defined in the 
+'addr' config file, with the same format.
+
+=item B<-c> I<path> [enter only] 
+
+Path to chroot to *after* entering the jail 
+(i.e. relative to the new root). Default is '/' (no chroot).
+
+=item B<-d> [not with setup] 
+
+Detach, run the specified actions after closing all 
+file descriptors and detaching from the current controlling terminal.
+Default is to stay attached.
+
+=item B<-e> I<env string> [start/enter only]
+
+Additional environment variables to define when executing a command
+inside the jail. By default, only PATH is defined. The argument is
+in the form "VAR1=val1:VAR2=val2:...:VARn=valn"
+
+=item B<-g> I<gid> [start/enter/stop only]
+
+Gid to switch to once inside the jail. Default is
+the gid of the caller.
+
+=item B<-i> F<file> 
+
+File to use as stdin.
+
+=item B<-o> F<file>
+
+File to use as stdout and stderr.
+
+=item B<-p> 
+
+Pretend. Prints the syscalls that would be performed, rather than 
+performing them. Useful for debuging.
+
+=item B<-t> [start/enter/setup only]
+
+Setup a terminal proxy before entering the jail. This allocates a new
+pseudo-terminal (pts) as the controlling terminal inside the jail, with 
+the master side controlled by a proxy process outside of the jail, which 
+relays outputs and inputs to and from its own controlling terminal. This 
+means jail-side processes do not get an open file descriptor on e.g. 
+/dev/tty1.
+
+=item B<-u> I<uid> [start/enter/stop only]
+
+Uid to switch to once inside the jail. Default is
+the uid of the caller.
+
+=back
+
+=head1 EXAMPLES
+
+'vsctl test start' does only part of the operations performed through 
+'vserver test start'. For instance, B<vsctl> does not do any rlimit/sched related
+configuration. Moreover, B<vsctl> does not support quite so many options as
+util-vserver's scripts.
+For reference, 'vsctl test start' does essentially the same thing as the 
+following util-vserver operations :
+  vnamespace -new
+  secure-mount --chroot <rootfs|other>
+  <ns cleanup loop>
+  secure-mount --rbind /
+  chbind <ipv4root> -- \
+ 	vcontext --create -- \
+ 	vnamespace --set -- \
+ 	vattribute <flags> <bcaps> <ccaps> -- \
+ 	vcontext --endsetup --chroot --migrate -- \
+ 	exec <cmd>
+
+Along with simplicity (and security, by getting rid of a lot of shell code), 
+B<vsctl> has the added advantage of being a single executable, wich means we don't 
+have to execute util-vserver utilities inside the new namespace/context, which 
+makes privilege management easier and allows us to 'chroot' the new namespace 
+entirely (ns->fs->root is actually the chrooted root, contrarily to how this is 
+done in util-vserver's vserver, where ns->fs->root still points to the 'system' 
+root, with every process in the context then chrooted to something that is 
+conveniently recursively remounted as '/'.)
+
+Note on 'setup': this might sound like util-vserver's vcontext --endsetup 
+command, but it is fundamentally different in that util-vserver's 'setup' deals 
+with the context itself (i.e. capability restrictions only occur after the 
+context has called 'endsetup'), while B<vsctl>'s 'setup' deals with the processes 
+running inside the context. The context itself is fully set-up, with all 
+restrictions applying, by the 'setup' call itself.
+
+=head1 SECURITY CONSIDERATIONS
+
+B<vsctl> needs the following POSIX capabilities to run as expected :
+ - CAP_SETGID
+ - CAP_SETUID
+ - CAP_KILL
+ - CAP_NET_ADMIN
+ - CAP_SYS_ADMIN
+ - CAP_SYS_CHROOT
+ - CAP_CONTEXT
+
+When parsing its config files, it temporarily drops those privileges by 
+sete{g,u}id'ing to a (supposedly) non-privileged identity, which is currently 
+hardcoded to uid=250 and gid=250. Full privs are re-engaged after successfully 
+parsing all options and config files.
+
+=head1 AUTHOR 
+
+Vincent Strubel <L<clipos@ssi.gouv.fr>>
+
+=head1 SEE ALSO
+
+L<nsmount(8)|nsmount>, L<vspace(8)|vspace>, L<vsattr(8)|vsattr)>, L<vserver(8)|vserver>
+ 
+=cut

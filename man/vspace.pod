@@ -1,0 +1,45 @@
+=pod
+
+=head1 NAME
+
+vspace - run a command in the namespaces of vserver context
+
+=head1 SYNOPSIS
+
+=over 12
+
+=item B<vspace> [B<-hv>] B<xid> B<--> B<command>
+
+=back
+
+=head1 DESCRIPTION
+
+B<vspace> runs a command in the namespaces (VFS, UTS, IPC) of a running
+vserver context. It is equivalent to util-vserver's I<vnamespace> when 
+used as B<vnamespace> B<--enter> B<xid> B<--> B<command>
+
+=head1 OPTIONS
+
+B<vspace> supports the following options:
+
+=over 12
+
+=item B<-v>
+
+Display version number and exit.
+
+=item B<-h>
+
+Display help and exit.
+
+=back
+
+=head1 AUTHOR 
+
+Vincent Strubel <L<clipos@ssi.gouv.fr>>
+
+=head1 SEE ALSO
+
+L<vsctl(8)|vsctl>, L<nsmount(8)|nsmount>, L<vserver(8)|vserver>
+ 
+=cut

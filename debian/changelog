@@ -1,0 +1,51 @@
+vsctl (1.2.5-1) unstable; urgency=low
+
+  * New upstream release.
+  * add /proc/filesystems to unhidden entries (needed for ssh in a vserver). 
+
+ -- Olivier Levillain <clipos@ssi.gouv.fr>  Tue, 06 Dec 2011 13:46:54 +0100
+
+vsctl (1.2.4-1) unstable; urgency=low
+
+  * New upstream release.
+
+ -- Olivier Levillain <clipos@ssi.gouv.fr>  Wed, 14 Sep 2011 16:13:50 +0200
+
+vsctl (1.2.2-1) unstable; urgency=low
+
+  [ Olivier Levillain ]
+  * New upstream release.
+    - add hostname parameter in /etc/jails
+  * Switch to non-native package.
+
+  [ Yves-Alexis Perez ]
+  * debian/vsctl.default:
+    - add /proc/uptime to unhidden stuff let ps work.
+
+ -- Yves-Alexis Perez <clipos@ssi.gouv.fr>  Wed, 25 May 2011 17:08:57 +0200
+
+vsctl (1.2.1.2) unstable; urgency=low
+
+  * debian/control:
+    - add myself to uploaders.
+    - update standards version to 3.9.2.
+    - add build-dep on hardening-includes.
+    - add build-dep on pkg-config, libclip-dev, libclipvserver-dev,
+      linux-headers-2.6-vserver-amd64
+  * debian/rules:
+    - pick build flags from dpkg-buildflags.
+    - add hardening flags to build flags.
+    - add -O1, -z,defs and --as-needed to LDFLAGS.
+    - pass --with-kernel-includes so it can find the vserver kernel headers. 
+  * debian/init.d:
+    - add $remote_fs to dependencies
+    - add a force-reload and restart options.
+
+ -- Yves-Alexis Perez <clipos@ssi.gouv.fr>  Wed, 25 May 2011 15:33:46 +0200
+
+vsctl (1.2.1.1) unstable; urgency=low
+
+  * Initial Debian packaging
+  * License fix
+
+ -- Olivier Levillain <clipos@ssi.gouv.fr>  Thu, 03 Feb 2011 11:10:01 +0100

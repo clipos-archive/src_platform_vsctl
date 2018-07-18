@@ -1,0 +1,17 @@
+#!/usr/bin/make -f
+
+include /usr/share/hardening-includes/hardening.make
+
+CFLAGS=$(shell dpkg-buildflags --get CFLAGS)
+LDFFLAGS=$(shell dpkg-buildflags --get CFLAGS)
+CFLAGS += $(HARDENING_CFLAGS)
+LDFLAGS += $(HARDENING_LDFLAGS)
+LDFLAGS += -Wl,-O1 -Wl,-z,defs -Wl,--as-needed
+
+export CFLAGS LDFLAGS
+
+override_dh_auto_configure:
+	dh_auto_configure -- --with-kernel-includes=/usr/src/linux-headers-2.6.32-5-common-vserver/include/
+
+%:
+	dh $@ 

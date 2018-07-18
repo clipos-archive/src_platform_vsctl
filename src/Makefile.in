@@ -1,0 +1,144 @@
+################# configure part ##############################
+VSCTL_STATIC = @static@
+VSCTL_DEBUG = @debug@
+VSCTL_TESTING = @testing@
+
+CC = @CC@
+srcdir = @srcdir@
+SHELL = @SHELL@
+CFLAGS = @CFLAGS@
+LDFLAGS = @LDFLAGS@ -lclipvserver
+LIB_CLIP = -lclip
+PREFIX = @prefix@
+prefix = @prefix@
+exec_prefix = @exec_prefix@
+sbindir = @sbindir@
+KERNEL_INCLUDES = @KERNEL_INCLUDES@
+
+
+VSCTL_SRC := parse_stub.c \
+		parse.c \
+		capflags.c \
+		mounts.c \
+		conf.c \
+		socket.c \
+		vsctl.c \
+		common.c
+
+NSMOUNT_SRC := parse_stub.c nsmount.c
+VSATTR_SRC := vsattr.c
+VSPACE_SRC := vspace.c common.c
+VSADDR_SRC := parse.c vsaddr.c
+VSWATCH_SRC := vswatch.c common.c
+
+VSCTL := vsctl
+NSMOUNT := nsmount
+VSATTR := vsattr
+VSPACE := vspace
+VSADDR := vsaddr
+VSWATCH := vswatch
+EXES := ${VSCTL} ${NSMOUNT} ${VSATTR} ${VSPACE} ${VSADDR} ${VSWATCH}
+
+.PHONY: all 
+
+all: build
+
+###############################################################
+ifndef VERBOSE
+MAKEFLAGS += -s --no-print-directory
+ECHO = echo
+else 
+ECHO = echo > /dev/null
+endif
+
+OBJS_DIR ?= obj
+VSCTL_OBJFILES := ${foreach file, ${patsubst %.c,%.o,${VSCTL_SRC}}, ${OBJS_DIR}/${file}}
+NSMOUNT_OBJFILES := ${foreach file, ${patsubst %.c,%.o,${NSMOUNT_SRC}}, ${OBJS_DIR}/${file}}
+VSATTR_OBJFILES := ${foreach file, ${patsubst %.c,%.o,${VSATTR_SRC}}, ${OBJS_DIR}/${file}}
+VSPACE_OBJFILES := ${foreach file, ${patsubst %.c,%.o,${VSPACE_SRC}}, ${OBJS_DIR}/${file}}
+VSWATCH_OBJFILES := ${foreach file, ${patsubst %.c,%.o,${VSWATCH_SRC}}, ${OBJS_DIR}/${file}}
+VSADDR_OBJFILES := ${foreach file, ${patsubst %.c,%.o,${VSADDR_SRC}}, ${OBJS_DIR}/${file}}
+
+DEPS_DIR = ${OBJS_DIR}/.deps
+VSCTL_DEPFILES := ${foreach file, ${basename ${VSCTL_SRC}}, ${DEPS_DIR}/${file}.d}
+NSMOUNT_DEPFILES := ${foreach file, ${basename ${NSMOUNT_SRC}}, ${DEPS_DIR}/${file}.d}
+VSATTR_DEPFILES := ${foreach file, ${basename ${VSATTR_SRC}}, ${DEPS_DIR}/${file}.d}
+VSPACE_DEPFILES := ${foreach file, ${basename ${VSPACE_SRC}}, ${DEPS_DIR}/${file}.d}
+VSWATCH_DEPFILES := ${foreach file, ${basename ${VSWATCH_SRC}}, ${DEPS_DIR}/${file}.d}
+VSADDR_DEPFILES := ${foreach file, ${basename ${VSADDR_SRC}}, ${DEPS_DIR}/${file}.d}
+
+OBJFILES := ${VSCTL_OBJFILES} ${NSMOUNT_OBJFILES} ${VSATTR_OBJFILES} ${VSPACE_OBJFILES} ${VSADDR_OBJFILES} ${VSWATCH_OBJFILES}
+DEPFILES := ${VSCTL_DEPFILES} ${NSMOUNT_DEPFILES} ${VSATTR_DEPFILES} ${VSPACE_DEPFILES} ${VSADDR_DEPFILES} ${VSWATCH_DEPFILES}
+
+ifdef VSCTL_CODECHECK
+CFLAGS += -Wno-error -Wunreachable-code
+endif
+ifeq (${VSCTL_STATIC}, yes)
+LDFLAGS += -static
+endif
+ifeq (${VSCTL_DEBUG}, yes)
+CFLAGS += -DDEBUG
+endif
+ifeq (${VSCTL_TESTING}, yes)
+CFLAGS += -DTESTING
+endif
+
+CONFIG_BASE ?= /etc/jails
+CFLAGS += -DCONFIG_BASE=${CONFIG_BASE} -DVERSION=${VERSION} -idirafter ${KERNEL_INCLUDES}
+
+
+###############################################################
+.PHONY: build clean mrproper maintainer-clean
+
+${OBJS_DIR}:
+	mkdir -p ${OBJS_DIR}
+
+${DEPS_DIR}:
+	mkdir -p ${DEPS_DIR}
+
+${OBJS_DIR}/%.o:%.c Makefile
+	@${ECHO} "        CC                $<"
+	$(CC) $(CFLAGS) $(IFLAGS) -MT $@ -MD -MP -MF ${DEPS_DIR}/$*.d -c -o $@ $<
+
+${VSCTL}: ${VSCTL_OBJFILES}
+	@${ECHO} "        LD                $@"
+	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS) $(LIB_CLIP)
+
+${NSMOUNT}: ${NSMOUNT_OBJFILES}
+	@${ECHO} "        LD                $@"
+	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
+
+${VSATTR}: ${VSATTR_OBJFILES}
+	@${ECHO} "        LD                $@"
+	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
+
+${VSPACE}: ${VSPACE_OBJFILES}
+	@${ECHO} "        LD                $@"
+	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
+
+${VSADDR}: ${VSADDR_OBJFILES}
+	@${ECHO} "        LD                $@"
+	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
+
+${VSWATCH}: ${VSWATCH_OBJFILES} 
+	@${ECHO} "        LD                $@" 
+	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS) $(LIB_CLIP)
+
+build: ${OBJS_DIR} ${DEPS_DIR} ${EXES}
+
+install: build 
+	list='$(EXES)'; for exe in $$list; do \
+		${ECHO} "        install -D $$exe ${DESTDIR}${sbindir}/$$exe" ;\
+		install -D $$exe ${DESTDIR}${sbindir}/$$exe ;\
+	done
+
+clean: 
+	@${ECHO} "        CLEAN             ${EXES} ${OBJFILES}"
+	rm -f ${EXES} ${OBJFILES} ${DEPFILES} 
+
+mrproper: clean
+	rmdir ${DEPS_DIR} ${OBJS_DIR}
+	rm -f Makefile
+
+
+-include ${DEPFILES}

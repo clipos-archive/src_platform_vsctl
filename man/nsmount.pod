@@ -1,0 +1,91 @@
+=pod
+
+=head1 NAME
+
+nsmount - Mount filesystems in a specific namespace
+
+=head1 SYNOPSIS
+
+=over 12
+
+=item B<nsmount> B<-x> I<xid> I<src> I<dst> [I<opts>]
+
+=item B<nsmount> B<-x> I<xid> B<-u> I<mnt> [I<opts>]
+
+=back
+
+=head1 DESCRIPTION
+
+B<nsmount> is a very simple utility to perform mount/umount operations inside a
+different namespace, referenced through the associated xid. It works along
+basically the same lines as util-vserver's vnamespace utility, excepted for
+the fact that it performs mount operations itself rather than invoquing 
+another utility.
+
+B<nsmount> supports two forms of invocation:
+
+=over 12
+
+=item B<nsmount> B<-x> I<xid> I<src> I<dst> [I<opts>]
+
+=back
+
+Mount operation: B<xid> is the xid of the vserver context referencing the target 
+namespace. B<src> is the source/spec for the mount call. When this means the 
+path to a device/directory (rather than C<none>, C<proc>, etc.), that path is 
+relative to the target namespace's root. B<dst> is the intended target for the 
+mount call, with path relative to the root of the target namespace.
+
+
+=over 12
+
+=item B<nsmount> B<-x> I<xid> B<-u> I<mnt> [I<opts>]
+
+=back
+
+Umount operation: B<xid> is as above.  B<mnt> is an active mount point in the 
+target namespace, with path relative to the root of the target namespace.
+
+The bonus of using B<nsmount> in that case is that /bin/(u)mount is not needed 
+inside the target namespace (which is most important when that namespace is 
+actually 'chrooted', as occurs with vsctl), nor is it needed to call an 
+untrusted 'context-side' binary from the ADMIN context.
+
+=head1 OPTIONS
+
+Appart from -x (xid for the target namespace) and -u (umount), B<nsmount> supports
+some of the 'canonical' /bin/mount options:
+
+=over 12
+
+=item B<-o> I<opt1>,I<opt2> 	
+
+Mount options, e.g. -o remount,rw. The keywords are the 
+same as those used for util-linux's mount, although not all are supported.
+
+=item B<-t> I<type>	
+
+Specify a filesystem type (arbitrarily).
+
+=back
+
+A specific option is also supported:
+
+=over 12
+
+=item B<-m> F<path>
+
+Use F<path> as a mtab file to update (adding lines for mounts, removing them
+for umounts). By default, no mtab file is used. F<path> is used in the 
+caller's namespace, rather than the target namespace. It can be either a 
+relative path from the caller's working directory, or an absolute path.
+
+=head1 AUTHOR 
+
+Vincent Strubel <L<clipos@ssi.gouv.fr>>
+
+=head1 SEE ALSO
+
+L<vsctl(8)|vsctl>, L<vspace(8)|vspace>, L<mount(8)|mount>, L<vserver(8)|vserver>
+ 
+=cut

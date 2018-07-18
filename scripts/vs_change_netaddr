@@ -1,0 +1,70 @@
+#!/bin/bash
+# SPDX-License-Identifier: LGPL-2.1-or-later
+# Copyright © 2007-2018 ANSSI. All Rights Reserved.
+
+# vs_change_netaddr - change the IP addresses of an existing network context
+# Copyright (C) 2012 SGDSN/ANSSI
+# Author: Vincent Strubel <clipos@ssi.gouv.fr>
+# All rights reserved
+
+source /lib/clip/net.sub
+
+JAIL="${1}"
+IFNAME="${JAIL//_/}"
+IF_HOST="${IFNAME}1"
+IF_GUEST="${IFNAME}0"
+
+shift
+ADDRS="${@}"
+
+[[ -n "${JAIL}" ]] || net_error "Missing jail name"
+
+
+[[ -d "/etc/jails/${JAIL}" ]] || net_error "Unknown jail: ${JAIL}"
+
+CTX="$(< "/etc/jails/${JAIL}/context")"
+
+[[ -n "${CTX}" ]] || net_error "No jail context for ${JAIL}"
+
+ADDR_NBDOTS=""
+for addr in ${ADDRS}; do
+	mask="${addr##*/}"
+	mask="$(net_get_nbrdots_mask ${mask})"
+	[[ -n "${mask}" ]] || net_error "Invalid address: ${addr}"
+	addr="${addr%%/*}"
+	ADDR_NBDOTS="${ADDR_NBDOTS} -a ${addr}/${mask}"
+done
+
+# First change the address in the context
+vsaddr -n "${CTX}" -r -s ${ADDR_NBDOTS} \
+	|| net_error "Failed to change network context addresses"
+
+# Then update routing in host
+ip route show | grep "${IF_HOST}" | while read route; do
+	ip route del ${route} || net_error "Failed to delete route ${route}"
+done
+
+for addr in ${ADDRS}; do
+	ip route add "${addr}" dev "${IF_HOST}" \
+		|| net_error "Failed to add route to ${addr}"
+done
+
+# Then update addresses in the namespace
+vspace -n "${CTX}" /sbin/ip addr show "${IF_GUEST}" \
+		| grep inet | awk '{print $2}' | while read addr; do
+	vspace -n "${CTX}" /sbin/ip addr del dev "${IF_GUEST}" "${addr}" \
+		|| net_error "Failed to delete address ${addr} in guest"
+done
+
+for addr in ${ADDRS}; do
+	vspace -n "${CTX}" /sbin/ip addr add dev "${IF_GUEST}" "${addr}" \
+		|| net_error "Failed to add address ${addr} in guest"
+done
+
+# Re-add route in the namespace
+if ! vspace -n "${CTX}" /sbin/ip route show | grep -q "${IF_GUEST}"; then
+	vspace -n "${CTX}" /sbin/ip route add dev "${IF_GUEST}" \
+		|| net_error "Failed to re-add default route in guest"
+fi
+
+echo "Okay, we're good to go"

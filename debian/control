@@ -1,0 +1,15 @@
+Source: vsctl
+Section: non-free/utils
+Priority: extra
+Maintainer: Olivier Levillain <clipos@ssi.gouv.fr>
+Uploaders: Yves-Alexis Perez <clipos@ssi.gouv.fr>
+Build-Depends: debhelper (>= 7.0.50~), autotools-dev, pkg-config,
+ hardening-includes, libclip-dev, libclipvserver-dev (>= 4.1.4-1), linux-headers-2.6-vserver-amd64
+Standards-Version: 3.9.2
+
+Package: vsctl
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Toolkit allowing to handle vservers smoothly
+ This package contains several tools useful to handle vservers:
+ vsctl, vsattr, nsmount, etc.

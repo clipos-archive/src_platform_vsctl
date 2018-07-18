@@ -1,0 +1,73 @@
+#!/bin/sh
+# SPDX-License-Identifier: LGPL-2.1-or-later
+# Copyright © 2007-2018 ANSSI. All Rights Reserved.
+
+# vs_ns_setup - Network namespace setup callback for vsctl
+# Copyright (C) 2012-2013 SGDSN/ANSSI
+# Author: Vincent Strubel <clipos@ssi.gouv.fr>
+# All rights reserved
+
+source /lib/clip/net.sub
+
+export PATH="/bin:/sbin:/usr/bin:/usr/sbin"
+
+[[ -n "${NS_PID}" ]] || net_error "missing NS_PID"
+[[ -n "${JAIL_NAME}" ]] || net_error "missing JAIL_NAME"
+[[ -n "${JAIL_XID}" ]] || net_error "missing JAIL_NAME"
+
+JAIL_NAME="${JAIL_NAME//_/}"
+
+if [[ "${JAIL_NSOPTS/N/}" == "${JAIL_NSOPTS}" ]]; then
+	echo "No net namespace, nothing to do"
+	exit 0
+fi
+
+[[ -n "${JAIL_ADDR_0}" ]] || net_error "missing address"
+
+if ! ip link show | grep -q "${JAIL_NAME}1"; then
+	net_veth_create "${JAIL_NAME}" \
+		|| net_error "could not create veth for ${JAIL_NAME}"
+fi
+
+net_veth_setns "${JAIL_NAME}" "${NS_PID}" \
+	|| net_error "could not set namespace ${PID_NS} for veth ${JAIL_NAME}"
+
+net_ifup "${JAIL_NAME}1" \
+	|| net_error "could not activate ${JAIL_NAME}1"
+
+declare -i i
+
+# Wait for context to be active
+for i in {1..5}; do
+	grep -q  Spaces "/proc/virtual/${JAIL_XID}/info" 2>/dev/null && break
+	sleep 1
+done
+
+vspace -n "${JAIL_XID}" /sbin/ip link set "lo" up \
+	|| net_warn "ip link lo up failed in guest ${JAIL_NAME}"
+
+vspace -n "${JAIL_XID}" /sbin/ip link set "${JAIL_NAME}0" up \
+	|| net_warn "ip link up failed in guest ${JAIL_NAME}"
+
+i=0
+while true ; do
+	addr="$(eval echo \${JAIL_ADDR_${i}})"
+	[[ -n "${addr}" ]] || break
+	pref="${addr##*/}"
+	net="$(_net_get_subnet "${addr%%/*}" "${pref}")"
+
+	vspace -n "${JAIL_XID}" /sbin/ip addr add dev \
+			"${JAIL_NAME}0" "${addr}" \
+		|| net_warn "ip link up failed in guest ${JAIL_NAME}"
+
+	net_route_dev "${JAIL_NAME}1" "${net}/${pref}" \
+		|| net_warn "failed to set up core routing for guest ${JAIL_NAME}"
+	i=$(( i + 1 ))
+done
+
+vspace -n "${JAIL_XID}" /sbin/ip route add default dev "${JAIL_NAME}0" \
+	|| net_warn "ip route failed in guest ${JAIL_NAME}"
+
+vspace -n "${JAIL_XID}" /sbin/sysctl net.ipv4.ping_group_range="322 322" \
+	|| net_warn "sysctl ping_group_range failed in guest ${JAIL_NAME}"
+
